@@ -115,8 +115,6 @@ test("POST /tasks returns 400 when title is empty", async () => {
   });
 });
 
-
-
 async function createTask(baseUrl, title) {
   const response = await fetch(`${baseUrl}/tasks`, {
     method: "POST",
@@ -184,5 +182,68 @@ test("PATCH /tasks/:id returns 400 when completed is not a boolean", async () =>
 
     const body = await response.json();
     assert.equal(body.error, "completed must be a boolean");
+  });
+});
+
+test("DELETE /tasks/:id deletes an existing task", async () => {
+  await withServer(async (baseUrl) => {
+    const createResponse = await fetch(`${baseUrl}/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: "Task to delete"
+      })
+    });
+
+    const task = await createResponse.json();
+
+    const deleteResponse = await fetch(`${baseUrl}/tasks/${task.id}`, {
+      method: "DELETE"
+    });
+
+    assert.equal(deleteResponse.status, 204);
+  });
+});
+
+test("DELETE /tasks/:id returns 404 for unknown task", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/tasks/999999`, {
+      method: "DELETE"
+    });
+
+    assert.equal(response.status, 404);
+
+    const body = await response.json();
+    assert.equal(body.error, "Task not found");
+  });
+});
+
+test("GET /tasks returns the list of tasks", async () => {
+  await withServer(async (baseUrl) => {
+    await createTask(baseUrl, "Test task");
+
+    const response = await fetch(`${baseUrl}/tasks`);
+
+    assert.equal(response.status, 200);
+
+    const tasks = await response.json();
+
+    assert.ok(Array.isArray(tasks));
+    assert.ok(tasks.length > 0);
+    assert.ok("id" in tasks[0]);
+    assert.ok("title" in tasks[0]);
+    assert.ok("completed" in tasks[0]);
+  });
+});
+test("GET /health returns healthy status", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/health`);
+
+    assert.equal(response.status, 200);
+
+    const body = await response.json();
+    assert.equal(body.status, "healthy");
   });
 });
