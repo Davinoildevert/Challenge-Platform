@@ -203,3 +203,13 @@ test("GET /tasks returns the list of tasks", async () => {
     assert.ok("completed" in tasks[0]);
   });
 });
+test("GET /health returns healthy status", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/health`);
+
+    assert.equal(response.status, 200);
+
+    const body = await response.json();
+    assert.equal(body.status, "healthy");
+  });
+});
