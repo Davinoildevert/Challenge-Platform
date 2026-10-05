@@ -115,8 +115,6 @@ test("POST /tasks returns 400 when title is empty", async () => {
   });
 });
 
-
-
 async function createTask(baseUrl, title) {
   const response = await fetch(`${baseUrl}/tasks`, {
     method: "POST",
@@ -219,5 +217,34 @@ test("DELETE /tasks/:id returns 404 for unknown task", async () => {
 
     const body = await response.json();
     assert.equal(body.error, "Task not found");
+  });
+});
+
+test("GET /tasks returns the list of tasks", async () => {
+  await withServer(async (baseUrl) => {
+    await createTask(baseUrl, "Test task");
+
+    const response = await fetch(`${baseUrl}/tasks`);
+
+    assert.equal(response.status, 200);
+
+    const tasks = await response.json();
+
+    assert.ok(Array.isArray(tasks));
+    assert.ok(tasks.length > 0);
+    assert.ok("id" in tasks[0]);
+    assert.ok("title" in tasks[0]);
+    assert.ok("completed" in tasks[0]);
+  });
+});
+
+test("GET /health returns healthy status", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/health`);
+
+    assert.equal(response.status, 200);
+
+    const body = await response.json();
+    assert.equal(body.status, "healthy");
   });
 });

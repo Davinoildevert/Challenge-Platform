@@ -9,7 +9,10 @@ let nextId = 1;
 
 function calculateTotal(items) {
   // INTENTIONAL DEFECT: students must diagnose this using the tests.
-  return items.reduce((total, item) => total + item.price * item.quantity, 0);
+  return items.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 }
 
 app.get("/", (_req, res) => {
@@ -30,6 +33,10 @@ app.get("/total", (_req, res) => {
   ];
 
   res.json({ total: calculateTotal(items) });
+});
+
+app.get("/tasks", (_req, res) => {
+  res.status(200).json(tasks);
 });
 
 app.post("/tasks", (req, res) => {
@@ -58,7 +65,20 @@ app.patch("/tasks/:id", (req, res) => {
     return res.status(404).json({ error: "Task not found" });
   }
 
-  app.delete("/tasks/:id", (req, res) => {
+  const { completed } = req.body || {};
+
+  if (typeof completed !== "boolean") {
+    return res
+      .status(400)
+      .json({ error: "completed must be a boolean" });
+  }
+
+  task.completed = completed;
+
+  res.status(200).json(task);
+});
+
+app.delete("/tasks/:id", (req, res) => {
   const id = Number(req.params.id);
 
   const taskIndex = tasks.findIndex((task) => task.id === id);
@@ -70,17 +90,6 @@ app.patch("/tasks/:id", (req, res) => {
   tasks.splice(taskIndex, 1);
 
   return res.status(204).send();
-});
-
-  const { completed } = req.body || {};
-
-  if (typeof completed !== "boolean") {
-    return res.status(400).json({ error: "completed must be a boolean" });
-  }
-
-  task.completed = completed;
-
-  res.status(200).json(task);
 });
 
 if (require.main === module) {
