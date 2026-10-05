@@ -32,6 +32,10 @@ app.get("/total", (_req, res) => {
   res.json({ total: calculateTotal(items) });
 });
 
+app.get("/tasks", (_req, res) => {
+  res.status(200).json(tasks);
+});
+
 app.post("/tasks", (req, res) => {
   const { title } = req.body;
 
