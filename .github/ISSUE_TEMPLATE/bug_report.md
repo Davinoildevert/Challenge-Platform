@@ -1,3 +1,11 @@
+---
+name: Signaler un bug
+about: Signaler un problème à corriger
+title: ''
+labels: ''
+assignees: ''
+---
+
 ## Problème
 Décrire le bug rencontré.
 
