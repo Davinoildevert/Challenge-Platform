@@ -210,6 +210,6 @@ test("GET /health returns healthy status", async () => {
     assert.equal(response.status, 200);
 
     const body = await response.json();
-    assert.equal(body.status, "broken");
+    assert.equal(body.status, "healthy");
   });
 });
