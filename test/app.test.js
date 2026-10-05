@@ -114,3 +114,75 @@ test("POST /tasks returns 400 when title is empty", async () => {
     assert.equal(body.error, "Title is required");
   });
 });
+
+
+
+async function createTask(baseUrl, title) {
+  const response = await fetch(`${baseUrl}/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ title })
+  });
+
+  return response.json();
+}
+
+test("PATCH /tasks/:id marks an existing task as completed", async () => {
+  await withServer(async (baseUrl) => {
+    const created = await createTask(baseUrl, "Write README");
+
+    const response = await fetch(`${baseUrl}/tasks/${created.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ completed: true })
+    });
+
+    assert.equal(response.status, 200);
+
+    const task = await response.json();
+
+    assert.equal(task.id, created.id);
+    assert.equal(task.title, "Write README");
+    assert.equal(task.completed, true);
+  });
+});
+
+test("PATCH /tasks/:id returns 404 for an unknown task", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/tasks/999999`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ completed: true })
+    });
+
+    assert.equal(response.status, 404);
+
+    const body = await response.json();
+    assert.equal(body.error, "Task not found");
+  });
+});
+
+test("PATCH /tasks/:id returns 400 when completed is not a boolean", async () => {
+  await withServer(async (baseUrl) => {
+    const created = await createTask(baseUrl, "Invalid update");
+
+    const response = await fetch(`${baseUrl}/tasks/${created.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ completed: "yes" })
+    });
+
+    assert.equal(response.status, 400);
+
+    const body = await response.json();
+    assert.equal(body.error, "completed must be a boolean");
+  });
+});
