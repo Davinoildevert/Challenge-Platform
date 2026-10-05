@@ -1,7 +1,11 @@
 const express = require("express");
 
 const app = express();
+app.use(express.json());
 const port = process.env.PORT || 3000;
+
+let tasks = [];
+let nextId = 1;
 
 function calculateTotal(items) {
   // INTENTIONAL DEFECT: students must diagnose this using the tests.
@@ -26,6 +30,24 @@ app.get("/total", (_req, res) => {
   ];
 
   res.json({ total: calculateTotal(items) });
+});
+
+app.post("/tasks", (req, res) => {
+  const { title } = req.body;
+
+  if (!title || title.trim() === "") {
+    return res.status(400).json({ error: "Title is required" });
+  }
+
+  const newTask = {
+    id: nextId++,
+    title,
+    completed: false
+  };
+
+  tasks.push(newTask);
+
+  res.status(201).json(newTask);
 });
 
 if (require.main === module) {
