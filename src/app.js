@@ -58,6 +58,20 @@ app.patch("/tasks/:id", (req, res) => {
     return res.status(404).json({ error: "Task not found" });
   }
 
+  app.delete("/tasks/:id", (req, res) => {
+  const id = Number(req.params.id);
+
+  const taskIndex = tasks.findIndex((task) => task.id === id);
+
+  if (taskIndex === -1) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  tasks.splice(taskIndex, 1);
+
+  return res.status(204).send();
+});
+
   const { completed } = req.body || {};
 
   if (typeof completed !== "boolean") {

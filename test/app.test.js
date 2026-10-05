@@ -186,3 +186,38 @@ test("PATCH /tasks/:id returns 400 when completed is not a boolean", async () =>
     assert.equal(body.error, "completed must be a boolean");
   });
 });
+
+test("DELETE /tasks/:id deletes an existing task", async () => {
+  await withServer(async (baseUrl) => {
+    const createResponse = await fetch(`${baseUrl}/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: "Task to delete"
+      })
+    });
+
+    const task = await createResponse.json();
+
+    const deleteResponse = await fetch(`${baseUrl}/tasks/${task.id}`, {
+      method: "DELETE"
+    });
+
+    assert.equal(deleteResponse.status, 204);
+  });
+});
+
+test("DELETE /tasks/:id returns 404 for unknown task", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/tasks/999999`, {
+      method: "DELETE"
+    });
+
+    assert.equal(response.status, 404);
+
+    const body = await response.json();
+    assert.equal(body.error, "Task not found");
+  });
+});
