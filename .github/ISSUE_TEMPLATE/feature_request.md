@@ -1,3 +1,11 @@
+---
+name: Proposer une fonctionnalité
+about: Décrire une fonctionnalité à ajouter
+title: ''
+labels: ''
+assignees: ''
+---
+
 ## Besoin
 Quelle fonctionnalité voulons-nous ajouter ?
 
