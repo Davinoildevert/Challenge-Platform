@@ -186,3 +186,20 @@ test("PATCH /tasks/:id returns 400 when completed is not a boolean", async () =>
     assert.equal(body.error, "completed must be a boolean");
   });
 });
+test("GET /tasks returns the list of tasks", async () => {
+  await withServer(async (baseUrl) => {
+    await createTask(baseUrl, "Test task");
+
+    const response = await fetch(`${baseUrl}/tasks`);
+
+    assert.equal(response.status, 200);
+
+    const tasks = await response.json();
+
+    assert.ok(Array.isArray(tasks));
+    assert.ok(tasks.length > 0);
+    assert.ok("id" in tasks[0]);
+    assert.ok("title" in tasks[0]);
+    assert.ok("completed" in tasks[0]);
+  });
+});
